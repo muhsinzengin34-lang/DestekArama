@@ -30,6 +30,8 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 
 /** roomId -> Set<WebSocket> */
 const rooms = new Map();
+const FIXED_ROOM_ID = 'destek-odasi';
+const MAX_ROOM_CAPACITY = 2;
 
 wss.on('connection', (ws) => {
   console.log('🔗 SERVER DEBUG: New WebSocket connection established');
@@ -40,26 +42,41 @@ wss.on('connection', (ws) => {
     try { msg = JSON.parse(buf.toString()); } catch { return; }
 
     if (msg.type === 'join') {
-      const { roomId, role } = msg;
-      if (!roomId) return;
+      const { role } = msg;
+      const roomId = FIXED_ROOM_ID; // Her zaman sabit oda kullan
       
-      console.log(`🔍 DEBUG: ${role} joining room: ${roomId}`);
-      console.log(`🔍 DEBUG: Current rooms: ${Array.from(rooms.keys()).join(', ')}`);
+      console.log(`🔍 DEBUG: ${role} trying to join fixed room: ${roomId}`);
+      
+      // Oda kapasitesi kontrolü
+      if (!rooms.has(roomId)) {
+        rooms.set(roomId, new Set());
+      }
+      
+      const currentUsers = rooms.get(roomId).size;
+      console.log(`👥 DEBUG: Room ${roomId} currently has ${currentUsers} users`);
+      
+      // Kapasite kontrolü
+      if (currentUsers >= MAX_ROOM_CAPACITY) {
+        console.log(`🚫 DEBUG: Room ${roomId} is full (${currentUsers}/${MAX_ROOM_CAPACITY})`);
+        ws.send(JSON.stringify({ 
+          type: 'room_full', 
+          message: 'Destek şu anda meşgul. Lütfen birkaç dakika sonra tekrar deneyin.' 
+        }));
+        ws.close();
+        return;
+      }
       
       currentRoom = roomId;
-      if (!rooms.has(roomId)) {
-        console.log(`🆕 DEBUG: Creating new room: ${roomId}`);
-        rooms.set(roomId, new Set());
-        // First arrival in fresh room: if caller, notify admin over Telegram
-        if (role === 'caller') {
-          console.log(`📱 DEBUG: Sending Telegram notification for room: ${roomId}`);
-          await notifyTelegram(roomId);
-        }
-      } else {
-        console.log(`🔄 DEBUG: Joining existing room: ${roomId} (${rooms.get(roomId).size} users)`);
-      }
       rooms.get(roomId).add(ws);
-      console.log(`👥 DEBUG: Room ${roomId} now has ${rooms.get(roomId).size} users`);
+      
+      console.log(`✅ DEBUG: ${role} successfully joined room: ${roomId} (${rooms.get(roomId).size}/${MAX_ROOM_CAPACITY})`);
+      
+      // İlk müşteri geldiğinde Telegram bildirimi gönder
+      if (role === 'caller' && rooms.get(roomId).size === 1) {
+        console.log(`📱 DEBUG: Sending Telegram notification for new customer in room: ${roomId}`);
+        await notifyTelegram(roomId);
+      }
+      
       broadcast(roomId, { type: 'peers', count: rooms.get(roomId).size });
       return;
     }
@@ -98,9 +115,9 @@ async function notifyTelegram(roomId) {
     if (TELEGRAM_BOT_TOKEN === 'demo' || TELEGRAM_CHAT_ID === 'demo') return false;
     
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    // Fix URL encoding - don't double encode
-    const adminUrl = `${BASE_URL}/admin.html?room=${roomId}`;
-    const text = `🌾 *HayDay Malzemeleri* - Yeni ziyaretçi bekliyor!\n\n📞 *Oda ID:* \`${roomId}\`\n🔗 *Admin Panel:* ${adminUrl}\n\n⚡ Hemen yanıtlayın!`;
+    // Sabit oda sistemi - artık room parametresi gerektirmiyor
+    const adminUrl = `${BASE_URL}/admin.html`;
+    const text = `🌾 *HayDay Malzemeleri* - Yeni müşteri destek odasında bekliyor!\n\n📞 *Destek Odası:* \`${roomId}\`\n🔗 *Admin Panel:* ${adminUrl}\n\n⚡ Hemen yanıtlayın!`;
     
     const resp = await fetch(url, {
       method: 'POST',

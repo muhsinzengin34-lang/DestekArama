@@ -1,6 +1,9 @@
 import { qs } from './utils.js';
 
-const roomId = qs('room');
+// Sabit oda sistemi - artık URL'den oda ID almıyoruz
+const FIXED_ROOM_ID = 'destek-odasi';
+const roomId = FIXED_ROOM_ID;
+
 const remoteVideo = document.getElementById('remoteVideo');
 const localVideo  = document.getElementById('localVideo');
 const btnAnsAudio = document.getElementById('btnAnsAudio');
@@ -13,12 +16,9 @@ const chatForm = document.getElementById('chatForm');
 const msgInput = document.getElementById('msgInput');
 const roomInfo = document.getElementById('roomInfo');
 
-if (!roomId) {
-  roomInfo.textContent = 'Hata: Oda ID bulunamadı';
-  log('Geçersiz oda linki. Telegram bildiriminden gelen linki kullanın.', 'system');
-} else {
-  roomInfo.textContent = `Oda: ${roomId}`;
-}
+// Sabit oda bilgisini göster
+roomInfo.textContent = `Destek Odası: ${roomId}`;
+log('Destek odası hazır, müşteri bekleniyor...', 'system');
 
 let ws, pc, dc, localStream;
 let connectionState = 'disconnected';
@@ -27,9 +27,8 @@ let reconnectAttempts = 0;
 const maxReconnectAttempts = 3;
 const iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
 
-if (roomId) {
-  connectWS();
-}
+// Sabit oda sisteminde otomatik bağlan
+connectWS();
 
 function connectWS() {
   console.log('🔗 ADMIN WS DEBUG: Attempting to connect WebSocket');
@@ -185,6 +184,12 @@ async function answer(withVideo) {
 
 async function onSignal(ev) {
   const msg = JSON.parse(ev.data);
+  
+  if (msg.type === 'room_full') {
+    log(msg.message, 'system');
+    log('Oda dolu - bağlantı kapatılıyor', 'system');
+    return;
+  }
   
   if (msg.type === 'peers') {
     const count = msg.count;

@@ -96,27 +96,13 @@ function createChatWidget(config = {}) {
 
 launch.onclick = async () => {
   console.log('🚀 LAUNCH DEBUG: Chat button clicked!');
-  // Check if room ID is provided in URL (from admin panel link)
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlRoomId = urlParams.get('room');
   
-  console.log('🔍 WIDGET DEBUG: Current URL:', window.location.href);
-  console.log('🔍 WIDGET DEBUG: URL search params:', window.location.search);
-  console.log('🔍 WIDGET DEBUG: Extracted room ID:', urlRoomId);
+  // Sabit oda sistemi - artık URL'den oda ID almıyoruz
+  const FIXED_ROOM_ID = 'destek-odasi';
+  roomId = FIXED_ROOM_ID;
   
-  if (urlRoomId) {
-    // Use room ID from URL (admin panel link)
-    roomId = urlRoomId;
-    console.log('✅ WIDGET DEBUG: Using URL room ID:', roomId);
-    updateStatus('🔄 Admin tarafından yönlendirildiniz, bağlanıyor…');
-  } else {
-    // Create new room ID for new visitors
-    roomId = uuid();
-    console.log('🆕 WIDGET DEBUG: Created new room ID:', roomId);
-    updateStatus('🔄 Admin\'e bağlanıyor…');
-    // Optional REST notify (server will also auto-notify on join when role=caller)
-    fetch('/notify', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ roomId }) }).catch(()=>{});
-  }
+  console.log('✅ WIDGET DEBUG: Using fixed room ID:', roomId);
+  updateStatus('🔄 Destek odasına bağlanıyor…');
   
   popup.classList.remove('hidden');
   connectWS();
@@ -344,6 +330,17 @@ function toggleTrack(kind) {
 
 async function onSignal(ev) {
   const msg = JSON.parse(ev.data);
+  
+  if (msg.type === 'room_full') {
+    updateStatus('🚫 ' + msg.message);
+    log(msg.message, 'system');
+    log('Lütfen birkaç dakika sonra tekrar deneyin.', 'system');
+    // Bağlantıyı kapat
+    if (ws) {
+      ws.close();
+    }
+    return;
+  }
   
   if (msg.type === 'peers') {
     const count = msg.count;
