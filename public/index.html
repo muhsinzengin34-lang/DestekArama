@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>🌾 HayDay Malzemeleri - Çiftçi Desteği</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <main style="min-height:60vh; padding:2rem">Sayfanızın içeriği…</main>
+
+  <button id="chat-launch" class="chat-fab" aria-haspopup="dialog" aria-controls="chat-popup">
+    Sohbet
+  </button>
+
+  <div id="chat-popup" class="popup hidden" role="dialog" aria-label="Sohbet penceresi" aria-modal="true">
+    <div class="phone">
+      <div class="phone-top">
+        <span id="status">🔄 Admin'e bağlanıyor…</span>
+        <button class="close" id="closePopup" aria-label="Pencereyi kapat">×</button>
+      </div>
+      <div class="phone-body">
+        <video id="remoteVideo" playsinline autoplay></video>
+        <video id="localVideo" playsinline autoplay muted class="localPiP"></video>
+
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <form id="chatForm" class="chatForm">
+          <input id="msgInput" placeholder="Mesaj yazın…" autocomplete="off" aria-label="Mesaj alanı"/>
+          <button type="submit" aria-label="Mesajı gönder">Gönder</button>
+        </form>
+      </div>
+      <div class="phone-bottom" role="group" aria-label="Görüşme kontrolleri">
+        <button id="btnCall" class="ctl" title="Sesli arama başlat">📞</button>
+        <button id="btnVideo" class="ctl" title="Görüntülü arama başlat">🎥</button>
+        <button id="btnMic" class="ctl" aria-pressed="false" title="Mikrofonu aç/kapat">🎙️</button>
+        <button id="btnCam" class="ctl" aria-pressed="false" title="Kamerayı aç/kapat">📷</button>
+        <button id="btnEnd" class="ctl danger" title="Görüşmeyi bitir">⛔</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="chat-widget.js"></script>
+</body>
+</html>

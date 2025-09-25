@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>🌾 HayDay Malzemeleri - Admin Panel</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="admin-wrap">
+    <h1>Admin Paneli</h1>
+    <p id="roomInfo"></p>
+    <div class="grid">
+      <video id="remoteVideo" playsinline autoplay></video>
+      <video id="localVideo" playsinline autoplay muted></video>
+    </div>
+    <div class="row">
+      <button id="btnAnsAudio">Sesi Aç</button>
+      <button id="btnAnsVideo">Görüntüyü Aç</button>
+      <button id="btnMic">Mikrofon</button>
+      <button id="btnCam">Kamera</button>
+      <button id="btnEnd" class="danger">Bitir</button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <form id="chatForm" class="chatForm">
+      <input id="msgInput" placeholder="Mesaj…" aria-label="Mesaj alanı"/>
+      <button type="submit">Gönder</button>
+    </form>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
