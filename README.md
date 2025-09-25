@@ -1,15 +1,25 @@
-# Sıfır Maliyetli 1:1 WebRTC Sohbet Sistemi + Telegram Bildirimi
+# Sabit Oda WebRTC Destek Sistemi + Telegram Bildirimi
 
-Bu proje, web sitenize entegre edebileceğiniz ücretsiz bir 1:1 ses/görüntü/yazı sohbet sistemi sunar. Kullanıcılar üye olmadan anında sohbet başlatabilir ve Telegram üzerinden bildirim alırsınız.
+Bu proje, web sitenize entegre edebileceğiniz ücretsiz bir 1:1 müşteri destek sistemi sunar. Sabit "destek-odası" ile admin ve müşteri otomatik eşleşir, Telegram üzerinden anlık bildirim alırsınız.
 
-## 🚀 Özellikler
+## 🚀 Yeni Özellikler (v2.0)
+
+- **🏠 Sabit Oda Sistemi**: `destek-odasi` adında tek oda, karmaşa yok
+- **🔄 Otomatik Bağlantı**: Admin ve müşteri otomatik eşleşir
+- **👥 2 Kişi Kapasiteli**: Maksimum 1 admin + 1 müşteri
+- **🚫 Oda Dolu Kontrolü**: 3. kişi gelirse "meşgul" mesajı
+- **🧹 Otomatik Temizlik**: Bağlantı kopunca oda boşalır
+- **🔒 Güvenlik**: Tüm güvenlik açıkları giderildi
+- **⚡ Performans**: Optimize edilmiş kod ve caching
+
+## 🎯 Temel Özellikler
 
 - **Sıfır Maliyet**: Tamamen ücretsiz servislerle çalışır
-- **Anında Bildirim**: Telegram Bot API ile anlık bildirimler
+- **Anında Bildirim**: Native Telegram API ile anlık bildirimler
 - **WebRTC**: Peer-to-peer ses/görüntü araması
 - **Fallback**: Medya başarısızsa otomatik metin sohbeti
 - **Mobil Uyumlu**: iOS ve Android'de mükemmel çalışır
-- **Telefon UI**: Modern telefon arayüzü tasarımı
+- **Modern UI**: Telefon arayüzü tasarımı
 - **Keep-Alive**: Sunucu sürekli aktif kalır
 
 ## 📋 Gereksinimler
@@ -124,6 +134,29 @@ Chat widget sayfası açık olduğunda otomatik ping gönderir:
 - ✅ **30 saniye aralık** - Çok sık ping
 - ✅ **Ek kurulum gerektirmez**
 - ⚠️ **Sadece sayfa açıkken** çalışır
+
+## 📱 Sabit Oda Sistemi Kullanımı
+
+### 🎯 Basit Kullanım (v2.0)
+
+1. **Admin Panel**: `https://your-domain.com/admin.html`
+   - Otomatik olarak `destek-odasi`'na bağlanır
+   - URL parametresi gerektirmez
+   - "Destek odası hazır, müşteri bekleniyor..." mesajı
+
+2. **Müşteri Panel**: `https://your-domain.com/index.html`
+   - "Sohbet" butonuna tıklar
+   - Otomatik olarak `destek-odasi`'na bağlanır
+   - Admin ile anında eşleşir
+
+3. **Oda Dolu Durumu**:
+   - 2 kişi varken 3. kişi gelirse
+   - "Destek şu anda meşgul. Lütfen birkaç dakika sonra tekrar deneyin."
+   - Bağlantı otomatik kapatılır
+
+4. **Telegram Bildirimi**:
+   - İlk müşteri geldiğinde bildirim gönderilir
+   - Admin panel linki: `admin.html` (artık room parametresi yok)
 
 ## 🔧 Web Sitenize Entegrasyon
 

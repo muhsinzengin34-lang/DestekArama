@@ -11,8 +11,21 @@ const {
 } = process.env;
 
 const app = express();
-app.use(express.json());
-app.use(express.static('public'));
+
+// Security and performance middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static('public', {
+  maxAge: '1d', // Cache static files for 1 day
+  etag: true
+}));
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
 
 // Health checks for uptime services
 app.get(['/healthz', '/ping'], (req, res) => res.status(200).send('ok'));
@@ -91,11 +104,29 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', () => {
+  ws.on('close', (code, reason) => {
+    console.log(`🔌 WebSocket closed: code=${code}, reason=${reason?.toString() || 'none'}`);
     if (currentRoom && rooms.has(currentRoom)) {
       rooms.get(currentRoom).delete(ws);
-      if (rooms.get(currentRoom).size === 0) rooms.delete(currentRoom);
-      else broadcast(currentRoom, { type: 'peers', count: rooms.get(currentRoom).size });
+      console.log(`👋 User left room: ${currentRoom} (${rooms.get(currentRoom).size}/${MAX_ROOM_CAPACITY} remaining)`);
+      if (rooms.get(currentRoom).size === 0) {
+        rooms.delete(currentRoom);
+        console.log(`🗑️ Room ${currentRoom} deleted (empty)`);
+      } else {
+        broadcast(currentRoom, { type: 'peers', count: rooms.get(currentRoom).size });
+      }
+    }
+  });
+
+  ws.on('error', (error) => {
+    console.error('❌ WebSocket error:', error.message);
+    if (currentRoom && rooms.has(currentRoom)) {
+      rooms.get(currentRoom).delete(ws);
+      if (rooms.get(currentRoom).size === 0) {
+        rooms.delete(currentRoom);
+      } else {
+        broadcast(currentRoom, { type: 'peers', count: rooms.get(currentRoom).size });
+      }
     }
   });
 });
