@@ -6,7 +6,7 @@ import { WebSocketServer } from 'ws';
 const {
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_CHAT_ID,
-  BASE_URL = 'http://localhost:3000',
+  BASE_URL = 'https://destek-arama-webrtc.onrender.com',
   PORT = 3000
 } = process.env;
 
